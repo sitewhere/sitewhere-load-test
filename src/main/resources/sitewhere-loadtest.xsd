@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.sitewhere.com/schema/sitewhere/loadtest"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+	targetNamespace="http://www.sitewhere.com/schema/sitewhere/loadtest" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+
+	<xsd:import namespace="http://www.springframework.org/schema/beans"
+		schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+
+	<xsd:element name="load-test" type="loadTestType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Provides configuration information for a SiteWhere server instance.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+
+	<xsd:complexType name="loadTestType">
+		<xsd:all>
+			<xsd:element ref="abstract-agent" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:all>
+	</xsd:complexType>
+
+	<!-- Used as a placeholder for agents to allow substitutionGroups -->
+	<xsd:element name="abstract-agent" abstract="true" type="abstractAgentType">
+		<xsd:annotation>
+			<xsd:documentation>
+				A placeholder for agent elements.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	
+	<!-- Common agent information -->
+	<xsd:complexType name="abstractAgentType">
+		<xsd:all>
+			<xsd:element ref="abstract-event-encoder"/>
+		</xsd:all>
+		<xsd:attribute name="agentId" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>Unique agent id.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<!-- Configuration data for an MQTT agent -->
+	<xsd:element name="mqtt-agent" type="mqttAgentTYpe" substitutionGroup="abstract-agent">
+		<xsd:annotation>
+			<xsd:documentation>Agent that sends traffic via MQTT
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="mqttAgentTYpe">
+		<xsd:complexContent>
+			<xsd:extension base="abstractAgentType">
+				<xsd:attribute name="hostname" type="xsd:string">
+					<xsd:annotation>
+						<xsd:documentation>MQTT broker hostname.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="port" type="substitutableInt">
+					<xsd:annotation>
+						<xsd:documentation>MQTT broker port.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Used as a placeholder for event encoders to allow substitutionGroups -->
+	<xsd:element name="abstract-event-encoder" abstract="true"
+		type="abstractEventEncoderType">
+		<xsd:annotation>
+			<xsd:documentation>
+				A placeholder for event encoder elements.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	
+	<!-- Common event encoder information -->
+	<xsd:complexType name="abstractEventEncoderType">
+	</xsd:complexType>
+
+	<!-- Event encoder that produces JSON output -->
+	<xsd:element name="json-encoder" type="jsonEncoderType" substitutionGroup="abstract-event-encoder">
+		<xsd:annotation>
+			<xsd:documentation>Encodes events in Sitewhere JSON batch representation.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="jsonEncoderType">
+		<xsd:complexContent>
+			<xsd:extension base="abstractEventEncoderType">
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Event encoder that produces SiteWhere Google Protocol Buffer output -->
+	<xsd:element name="protobuf-encoder" type="protobufEncoderType"
+		substitutionGroup="abstract-event-encoder">
+		<xsd:annotation>
+			<xsd:documentation>Encodes events in SiteWhere Google Protocol Buffer format.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="protobufEncoderType">
+		<xsd:complexContent>
+			<xsd:extension base="abstractEventEncoderType">
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+	<!-- Defines property placeholder regular expression -->
+	<xsd:simpleType name="propertyPlaceholderType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Defines string value restricted to a Spring property placeholder.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="\$\{[^\}]+\}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="substitutableInt">
+		<xsd:annotation>
+			<xsd:documentation>
+				Value that can be an integer or a property placeholder value.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="propertyPlaceholderType"/>
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:int"/>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+</xsd:schema>
