@@ -5,7 +5,7 @@
 	<servlet>
 		<display-name>Server Loader</display-name>
 		<servlet-name>ServerLoader</servlet-name>
-		<servlet-class>com.sitewhere.web.SiteWhereServerLoader</servlet-class>
+		<servlet-class>com.sitewhere.loadtest.web.LoadTesterLoader</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
@@ -29,7 +29,7 @@
 		</init-param>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>com.sitewhere.web.mvc</param-value>
+			<param-value>com.sitewhere.loadtest.web.mvc</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -49,7 +49,7 @@
 	</servlet-mapping>
 
 	<listener>
-		<listener-class>com.sitewhere.web.ShutdownListener</listener-class>
+		<listener-class>com.sitewhere.loadtest.web.ShutdownListener</listener-class>
 	</listener>
 
 	<session-config>

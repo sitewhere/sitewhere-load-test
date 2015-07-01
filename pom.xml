@@ -25,6 +25,8 @@
 		<spring.version>3.2.10.RELEASE</spring.version>
 		<spring.security.version>3.2.6.RELEASE</spring.security.version>
 		<jackson.version>2.1.5</jackson.version>
+		<tomcat.version>7.0.62</tomcat.version>
+		<server.name>sitewhere-load-test-server</server.name>
 	</properties>
 
 	<licenses>
@@ -54,59 +56,92 @@
 		<url>http://www.sitewhere.com/</url>
 	</organization>
 
+	<profiles>
+		<profile>
+			<id>buildServer</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.googlecode.maven-download-plugin</groupId>
+						<artifactId>download-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<execution>
+								<id>get-tomcat</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>wget</goal>
+								</goals>
+								<configuration>
+									<url>http://apache.osuosl.org/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+									<unpack>true</unpack>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+									<md5>38cb959107ca54276d53391f83761793</md5>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.7</version>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<configuration>
+									<target>
+										<delete includeemptydirs="true">
+											<fileset dir="${project.build.directory}/apache-tomcat-${tomcat.version}/webapps"
+												includes="**/*"/>
+										</delete>
+										<copy todir="${project.build.directory}/apache-tomcat-${tomcat.version}/webapps">
+											<fileset dir="${project.basedir}/deploy">
+												<include name="sitewhere-load-test-${project.version}.war"/>
+											</fileset>
+										</copy>
+										<copy todir="${project.build.directory}/apache-tomcat-${tomcat.version}/conf">
+											<fileset dir="${project.basedir}/config" includes="**/*" excludes="log4j.xml"/>
+										</copy>
+										<copy todir="${project.build.directory}/apache-tomcat-${tomcat.version}/lib">
+											<fileset dir="${project.basedir}/config" includes="log4j.xml"/>
+										</copy>
+										<copy todir="${project.build.directory}/apache-tomcat-${tomcat.version}/bin">
+											<fileset dir="${project.basedir}/config" includes="setenv.*"/>
+										</copy>
+										<move todir="${project.build.directory}/${server.name}-${project.version}">
+											<fileset dir="${project.build.directory}/apache-tomcat-${tomcat.version}"/>
+										</move>
+										<zip destfile="${project.basedir}/deploy/${server.name}-${project.version}.zip"
+											basedir="${project.build.directory}" includes="${server.name}-${project.version}/**"/>
+										<tar tarfile="${project.basedir}/deploy/${server.name}-${project.version}.tar.gz"
+											basedir="${project.build.directory}" includes="${server.name}-${project.version}/**"
+											excludes="${server.name}-${project.version}/bin/**.sh" longfile="gnu"
+											compression="gzip">
+											<tarfileset dir="${project.build.directory}/${server.name}-${project.version}/bin"
+												prefix="${server.name}-${project.version}/bin" filemode="755">
+												<include name="**/*.sh"/>
+											</tarfileset>
+											<tarfileset src="${project.basedir}/config/policy.tar" prefix="${server.name}-${project.version}/conf"/>
+										</tar>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.jaxrs</groupId>
-			<artifactId>jackson-jaxrs-json-provider</artifactId>
-			<version>${jackson.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-scala_2.10</artifactId>
-			<version>${jackson.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-jsonSchema</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>com.sitewhere</groupId>
+			<artifactId>sitewhere-core</artifactId>
+			<version>${sitewhere.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -161,7 +196,8 @@
 						%regex[WEB-INF/lib/jaxb.*],
 						%regex[WEB-INF/lib/jasper.*],
 						%regex[WEB-INF/lib/jsp.*],
-						%regex[WEB-INF/lib/servlet.*]
+						%regex[WEB-INF/lib/servlet.*],
+						%regex[WEB-INF/lib/log4j.*-2\.1.*]
 					</packagingExcludes>
 				</configuration>
 				<executions>
@@ -181,6 +217,43 @@
 					<source>1.5</source>
 					<target>1.5</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<property name="project.version" value="${project.version}"></property>
+								<ant antfile="generator.xml" dir="." target="generate-versions" inheritRefs="true"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${basedir}/target/generated-sources</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
