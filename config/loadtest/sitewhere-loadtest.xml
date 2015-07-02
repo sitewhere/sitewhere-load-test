@@ -4,7 +4,7 @@
 	xsi:schemaLocation="
            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
-           http://www.sitewhere.com/schema/sitewhere/loadtest http://www.sitewhere.org/schema/sitewhere/loadtest/1.0.5/sitewhere-loadtest.xsd?a=4">
+           http://www.sitewhere.com/schema/sitewhere/loadtest http://www.sitewhere.org/schema/sitewhere/loadtest/1.0.5/sitewhere-loadtest.xsd?a=7">
            
 	<!-- Load property values for substitution -->
 	<context:property-placeholder location="file:${catalina.home}/conf/loadtest/loadtest.properties"
@@ -12,23 +12,28 @@
 
 	<!-- Defines load testing configuration -->
 	<lt:load-test>
+
+		<!-- List of load test agents -->
+		<lt:agents>
 	
-		<!-- Generates traffic via an MQTT connection -->
-		<lt:mqtt-agent numThreads="20">
+			<!-- Generates traffic via an MQTT connection -->
+			<lt:mqtt-agent agentId="mqtt" numThreads="20">
 
-			<!-- Produces events at a linear rate with a throttle delay -->
-			<lt:linear-event-producer throttleDelayMs="100"/>
+				<!-- Produces events at a linear rate with a throttle delay -->
+				<lt:linear-event-producer throttleDelayMs="100"/>
 
-			<!-- Produces events at an increasing rate over the duration of an hour -->
-			<!--  
-			<lt:progressive-event-producer initialThrottleDelayMs="500"
-				finalThrottleDelayMs="10" durationInSec="3600"/>
-			-->
+				<!-- Produces events at an increasing rate over the duration of an hour -->
+				<!--  
+				<lt:progressive-event-producer initialThrottleDelayMs="500"
+					finalThrottleDelayMs="10" durationInSec="3600"/>
+				-->
 		
-			<!-- Encodes events in SiteWhere JSON batch format -->
-			<lt:json-encoder/>
+				<!-- Encodes events in SiteWhere JSON batch format -->
+				<lt:json-encoder/>
 
-		</lt:mqtt-agent>
+			</lt:mqtt-agent>
+
+		</lt:agents>
 
 	</lt:load-test>
 

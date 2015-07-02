@@ -12,8 +12,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mule.util.StringMessageUtils;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
+import com.sitewhere.loadtest.server.TomcatConfigurationResolver;
+import com.sitewhere.loadtest.spi.agent.IAgentManager;
+import com.sitewhere.loadtest.spi.server.IConfigurationResolver;
+import com.sitewhere.loadtest.spi.server.ILoadTestServer;
+import com.sitewhere.loadtest.spring.ILoadTestBeans;
 import com.sitewhere.loadtest.version.IVersion;
 import com.sitewhere.loadtest.version.VersionHelper;
 import com.sitewhere.server.lifecycle.LifecycleComponent;
@@ -26,10 +32,10 @@ import com.sitewhere.spi.server.lifecycle.LifecycleComponentType;
  * 
  * @author Derek
  */
-public class LoadTesterServer extends LifecycleComponent {
+public class LoadTestServer extends LifecycleComponent implements ILoadTestServer {
 
 	/** Private logger instance */
-	private static Logger LOGGER = Logger.getLogger(LoadTesterServer.class);
+	private static Logger LOGGER = Logger.getLogger(LoadTestServer.class);
 
 	/** Spring context for server */
 	public static ApplicationContext SERVER_SPRING_CONTEXT;
@@ -37,10 +43,16 @@ public class LoadTesterServer extends LifecycleComponent {
 	/** Contains version information */
 	private IVersion version = VersionHelper.getVersion();
 
+	/** Configuratino resolver */
+	private IConfigurationResolver configurationResolver = new TomcatConfigurationResolver();
+
+	/** Agent manager implementation */
+	private IAgentManager agentManager;
+
 	/** Server startup error */
 	private ServerStartupException serverStartupError;
 
-	public LoadTesterServer() {
+	public LoadTestServer() {
 		super(LifecycleComponentType.Other);
 	}
 
@@ -51,6 +63,14 @@ public class LoadTesterServer extends LifecycleComponent {
 	 */
 	@Override
 	public void start() throws SiteWhereException {
+		// Load Spring beans configuration.
+		initializeSpringContext();
+
+		// Initialize agent manager.
+		initializeAgentManager();
+		startNestedComponent(getAgentManager(), true);
+
+		// Show banner indicating that server has started.
 		showServerBanner();
 	}
 
@@ -61,6 +81,19 @@ public class LoadTesterServer extends LifecycleComponent {
 	 */
 	@Override
 	public void stop() throws SiteWhereException {
+		if (getAgentManager() != null) {
+			getAgentManager().lifecycleStop();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.server.lifecycle.LifecycleComponent#getComponentName()
+	 */
+	@Override
+	public String getComponentName() {
+		return "SiteWhere Load Test Node " + getVersion().getVersionIdentifier();
 	}
 
 	/*
@@ -71,6 +104,30 @@ public class LoadTesterServer extends LifecycleComponent {
 	@Override
 	public void logState() {
 		getLogger().info("\n\nLoad Test Node State:\n" + logState("", this) + "\n");
+	}
+
+	/**
+	 * Verifies and loads the Spring configuration file.
+	 * 
+	 * @throws SiteWhereException
+	 */
+	protected void initializeSpringContext() throws SiteWhereException {
+		SERVER_SPRING_CONTEXT = getConfigurationResolver().resolveLoadTestContext(getVersion());
+	}
+
+	/**
+	 * Initializeagent manager implementation.
+	 * 
+	 * @throws SiteWhereException
+	 */
+	protected void initializeAgentManager() throws SiteWhereException {
+		try {
+			this.agentManager =
+					(IAgentManager) SERVER_SPRING_CONTEXT.getBean(ILoadTestBeans.BEAN_AGENT_MANAGER);
+			LOGGER.info("Agent manager implementation using: " + agentManager.getClass().getName());
+		} catch (NoSuchBeanDefinitionException e) {
+			throw new SiteWhereException("No agent manager implementation configured.");
+		}
 	}
 
 	/**
@@ -105,6 +162,36 @@ public class LoadTesterServer extends LifecycleComponent {
 	/*
 	 * (non-Javadoc)
 	 * 
+	 * @see com.sitewhere.loadtest.spi.ILoadTestServer#getVersion()
+	 */
+	@Override
+	public IVersion getVersion() {
+		return version;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.server.ILoadTestServer#getConfigurationResolver()
+	 */
+	@Override
+	public IConfigurationResolver getConfigurationResolver() {
+		return configurationResolver;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.server.ILoadTestServer#getAgentManager()
+	 */
+	@Override
+	public IAgentManager getAgentManager() {
+		return agentManager;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.sitewhere.spi.server.lifecycle.ILifecycleComponent#getLogger()
 	 */
 	@Override
@@ -112,10 +199,22 @@ public class LoadTesterServer extends LifecycleComponent {
 		return LOGGER;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.ILoadTestServer#getServerStartupError()
+	 */
 	public ServerStartupException getServerStartupError() {
 		return serverStartupError;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sitewhere.loadtest.spi.ILoadTestServer#setServerStartupError(com.sitewhere.
+	 * spi.ServerStartupException)
+	 */
 	public void setServerStartupError(ServerStartupException serverStartupError) {
 		this.serverStartupError = serverStartupError;
 	}

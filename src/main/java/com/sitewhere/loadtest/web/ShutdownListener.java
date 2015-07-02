@@ -12,7 +12,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 
-import com.sitewhere.loadtest.LoadTester;
+import com.sitewhere.loadtest.LoadTest;
 
 /**
  * Handles server shutdown logic when servlet context is destroyed.
@@ -34,7 +34,7 @@ public class ShutdownListener implements ServletContextListener {
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
-		LoadTester.getLoadTestServer().lifecycleStop();
+		LoadTest.getLoadTestServer().lifecycleStop();
 	}
 
 	/*

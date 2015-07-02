@@ -26,7 +26,7 @@ import com.wordnik.swagger.model.ApiInfo;
  */
 @Configuration
 @EnableSwagger
-public class LoadTesterSwaggerConfig {
+public class LoadTestSwaggerConfig {
 
 	/** Title for API page */
 	private static final String API_TITLE = "SiteWhere Load Test NodeREST APIs";
@@ -49,7 +49,7 @@ public class LoadTesterSwaggerConfig {
 	private SpringSwaggerConfig springSwaggerConfig;
 
 	/** SiteWhere path provider */
-	private LoadTesterPathProvider pathProvider;
+	private LoadTestPathProvider pathProvider;
 
 	@Autowired
 	public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig) {
@@ -58,7 +58,7 @@ public class LoadTesterSwaggerConfig {
 
 	@Autowired
 	public void setServletContext(ServletContext servletContext) {
-		this.pathProvider = new LoadTesterPathProvider(servletContext);
+		this.pathProvider = new LoadTestPathProvider(servletContext);
 	}
 
 	@Bean

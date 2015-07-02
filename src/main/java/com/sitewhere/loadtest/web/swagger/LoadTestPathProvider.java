@@ -16,9 +16,9 @@ import com.mangofactory.swagger.paths.RelativeSwaggerPathProvider;
  * 
  * @author Derek
  */
-public class LoadTesterPathProvider extends RelativeSwaggerPathProvider {
+public class LoadTestPathProvider extends RelativeSwaggerPathProvider {
 
-	public LoadTesterPathProvider(ServletContext servletContext) {
+	public LoadTestPathProvider(ServletContext servletContext) {
 		super(servletContext);
 	}
 

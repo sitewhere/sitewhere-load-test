@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServlet;
 import org.apache.log4j.Logger;
 import org.mule.util.StringMessageUtils;
 
-import com.sitewhere.loadtest.LoadTester;
+import com.sitewhere.loadtest.LoadTest;
 import com.sitewhere.spi.ServerStartupException;
 import com.sitewhere.spi.SiteWhereException;
 
@@ -25,13 +25,13 @@ import com.sitewhere.spi.SiteWhereException;
  * 
  * @author Derek
  */
-public class LoadTesterLoader extends HttpServlet {
+public class LoadTestLoader extends HttpServlet {
 
 	/** Serial version UUID */
 	private static final long serialVersionUID = -8696135593175193509L;
 
 	/** Static logger instance */
-	private static Logger LOGGER = Logger.getLogger(LoadTesterLoader.class);
+	private static Logger LOGGER = Logger.getLogger(LoadTestLoader.class);
 
 	/*
 	 * (non-Javadoc)
@@ -42,11 +42,11 @@ public class LoadTesterLoader extends HttpServlet {
 	public void init() throws ServletException {
 		super.init();
 		try {
-			LoadTester.start();
+			LoadTest.start();
 			LOGGER.info("Server started successfully.");
-			LoadTester.getLoadTestServer().logState();
+			LoadTest.getLoadTestServer().logState();
 		} catch (ServerStartupException e) {
-			LoadTester.getLoadTestServer().setServerStartupError(e);
+			LoadTest.getLoadTestServer().setServerStartupError(e);
 			List<String> messages = new ArrayList<String>();
 			messages.add("!!!! SiteWhere Load Test Node Failed to Start !!!!");
 			messages.add("");

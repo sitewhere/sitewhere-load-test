@@ -7,6 +7,7 @@
  */
 package com.sitewhere.loadtest;
 
+import com.sitewhere.loadtest.spi.server.ILoadTestServer;
 import com.sitewhere.spi.SiteWhereException;
 import com.sitewhere.spi.server.lifecycle.LifecycleStatus;
 
@@ -15,10 +16,10 @@ import com.sitewhere.spi.server.lifecycle.LifecycleStatus;
  * 
  * @author Derek
  */
-public class LoadTester {
+public class LoadTest {
 
 	/** Singleton server instance */
-	private static LoadTesterServer SERVER;
+	private static ILoadTestServer SERVER;
 
 	/**
 	 * Called once to bootstrap the load test node.
@@ -26,7 +27,7 @@ public class LoadTester {
 	 * @throws SiteWhereException
 	 */
 	public static void start() throws SiteWhereException {
-		SERVER = new LoadTesterServer();
+		SERVER = new LoadTestServer();
 		SERVER.lifecycleStart();
 
 		// Handle errors that prevent server startup.
@@ -49,7 +50,7 @@ public class LoadTester {
 	 * 
 	 * @return
 	 */
-	public static LoadTesterServer getLoadTestServer() {
+	public static ILoadTestServer getLoadTestServer() {
 		if (SERVER == null) {
 			throw new RuntimeException("Load test node has not been initialized.");
 		}

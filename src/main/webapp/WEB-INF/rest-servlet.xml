@@ -18,7 +18,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 	
 	<!-- Swagger Configuration -->
 	<context:component-scan base-package="com.sitewhere.web.rest"/>
-	<bean class="com.sitewhere.loadtest.web.swagger.LoadTesterSwaggerConfig"/>
+	<bean class="com.sitewhere.loadtest.web.swagger.LoadTestSwaggerConfig"/>
 	
 	<!-- Enable Spring security annotations on loaded classes -->
 	<sec:global-method-security secured-annotations="enabled"/>

@@ -17,8 +17,20 @@
 
 	<xsd:complexType name="loadTestType">
 		<xsd:all>
-			<xsd:element ref="abstract-agent" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="agents" type="agentsType"/>
 		</xsd:all>
+	</xsd:complexType>
+
+	<xsd:complexType name="agentsType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Contains declarations for load test agents that will be used to
+				generate traffic.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element ref="abstract-agent" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
 	</xsd:complexType>
 
 	<!-- Used as a placeholder for agents to allow substitutionGroups -->
@@ -36,7 +48,7 @@
 			<xsd:element ref="abstract-event-encoder"/>
 			<xsd:element ref="abstract-event-producer"/>
 		</xsd:all>
-		<xsd:attribute name="agentId" type="xsd:string">
+		<xsd:attribute name="agentId" type="xsd:string" use="required">
 			<xsd:annotation>
 				<xsd:documentation>Unique agent id.</xsd:documentation>
 			</xsd:annotation>

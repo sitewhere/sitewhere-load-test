@@ -5,7 +5,7 @@
 	<servlet>
 		<display-name>Server Loader</display-name>
 		<servlet-name>ServerLoader</servlet-name>
-		<servlet-class>com.sitewhere.loadtest.web.LoadTesterLoader</servlet-class>
+		<servlet-class>com.sitewhere.loadtest.web.LoadTestLoader</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
