@@ -31,10 +31,10 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	private static Logger LOGGER = Logger.getLogger(AgentManager.class);
 
 	/** List of load test agents */
-	private List<ILoadTestAgent> agents = new ArrayList<ILoadTestAgent>();
+	private List<ILoadTestAgent<?>> agents = new ArrayList<ILoadTestAgent<?>>();
 
 	/** Map of load test agents by id */
-	private Map<String, ILoadTestAgent> agentsById = new HashMap<String, ILoadTestAgent>();
+	private Map<String, ILoadTestAgent<?>> agentsById = new HashMap<String, ILoadTestAgent<?>>();
 
 	public AgentManager() {
 		super(LifecycleComponentType.Other);
@@ -47,7 +47,7 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	 */
 	@Override
 	public void start() throws SiteWhereException {
-		for (ILoadTestAgent agent : agents) {
+		for (ILoadTestAgent<?> agent : agents) {
 			startNestedComponent(agent, true);
 		}
 	}
@@ -59,7 +59,7 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	 */
 	@Override
 	public void stop() throws SiteWhereException {
-		for (ILoadTestAgent agent : agents) {
+		for (ILoadTestAgent<?> agent : agents) {
 			agent.lifecycleStop();
 		}
 	}
@@ -69,9 +69,9 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	 * 
 	 * @param agents
 	 */
-	protected void indexAgents(List<ILoadTestAgent> agents) {
+	protected void indexAgents(List<ILoadTestAgent<?>> agents) {
 		agentsById.clear();
-		for (ILoadTestAgent agent : agents) {
+		for (ILoadTestAgent<?> agent : agents) {
 			agentsById.put(agent.getAgentId(), agent);
 		}
 	}
@@ -91,13 +91,12 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	 * 
 	 * @see com.sitewhere.loadtest.spi.agent.IAgentManager#getAgents()
 	 */
-	public List<ILoadTestAgent> getAgents() {
+	public List<ILoadTestAgent<?>> getAgents() {
 		return agents;
 	}
 
-	public void setAgents(List<ILoadTestAgent> agents) {
+	public void setAgents(List<ILoadTestAgent<?>> agents) {
 		this.agents = agents;
-		indexAgents(agents);
 	}
 
 	/*
@@ -106,7 +105,7 @@ public class AgentManager extends LifecycleComponent implements IAgentManager {
 	 * @see com.sitewhere.loadtest.spi.agent.IAgentManager#getAgentById(java.lang.String)
 	 */
 	@Override
-	public ILoadTestAgent getAgentById(String agentId) {
+	public ILoadTestAgent<?> getAgentById(String agentId) {
 		return agentsById.get(agentId);
 	}
 }

@@ -55,6 +55,10 @@ public class LoadTestParser extends AbstractBeanDefinitionParser {
 				new AgentsParser().parse(child, context);
 				break;
 			}
+			case Connection: {
+				new ConnectionParser().parse(child, context);
+				break;
+			}
 			}
 		}
 		return null;
@@ -68,7 +72,10 @@ public class LoadTestParser extends AbstractBeanDefinitionParser {
 	public static enum Elements {
 
 		/** List of agents */
-		Agents("agents");
+		Agents("agents"),
+
+		/** List of agents */
+		Connection("connection");
 
 		/** Event code */
 		private String localName;

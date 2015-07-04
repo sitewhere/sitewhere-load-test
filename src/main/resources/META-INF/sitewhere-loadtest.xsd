@@ -10,15 +10,28 @@
 	<xsd:element name="load-test" type="loadTestType">
 		<xsd:annotation>
 			<xsd:documentation>
-				Provides configuration information for a SiteWhere server instance.
+				Provides configuration information for a SiteWhere load test node
+				instance.
 			</xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
 
 	<xsd:complexType name="loadTestType">
 		<xsd:all>
+			<xsd:element name="connection" type="connectionType"/>
 			<xsd:element name="agents" type="agentsType"/>
 		</xsd:all>
+	</xsd:complexType>
+
+	<xsd:complexType name="connectionType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Contains information about the connection to SiteWhere.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="sitewhere-api-url"/>
+		</xsd:sequence>
 	</xsd:complexType>
 
 	<xsd:complexType name="agentsType">
@@ -45,8 +58,9 @@
 	<!-- Common agent information -->
 	<xsd:complexType name="abstractAgentType">
 		<xsd:all>
-			<xsd:element ref="abstract-event-encoder"/>
+			<xsd:element ref="abstract-device-chooser"/>
 			<xsd:element ref="abstract-event-producer"/>
+			<xsd:element ref="abstract-event-encoder"/>
 		</xsd:all>
 		<xsd:attribute name="agentId" type="xsd:string" use="required">
 			<xsd:annotation>
@@ -71,7 +85,7 @@
 	<xsd:complexType name="mqttAgentTYpe">
 		<xsd:complexContent>
 			<xsd:extension base="abstractAgentType">
-				<xsd:attribute name="hostname" type="xsd:string">
+				<xsd:attribute name="hostname" type="xsd:string" use="required">
 					<xsd:annotation>
 						<xsd:documentation>MQTT broker hostname.</xsd:documentation>
 					</xsd:annotation>
@@ -79,6 +93,51 @@
 				<xsd:attribute name="port" type="substitutableInt">
 					<xsd:annotation>
 						<xsd:documentation>MQTT broker port.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="topic" type="xsd:string" use="required">
+					<xsd:annotation>
+						<xsd:documentation>MQTT topic to publish to.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Used as a placeholder for device choosers to allow substitutionGroups -->
+	<xsd:element name="abstract-device-chooser" abstract="true"
+		type="abstractDeviceChooserType">
+		<xsd:annotation>
+			<xsd:documentation>
+				A placeholder for device chooser elements.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="abstractDeviceChooserType">
+	</xsd:complexType>
+
+	<!-- Device chooser that pulls from a limited pool of devices that match criteria -->
+	<xsd:element name="device-pool" type="devicePoolType" substitutionGroup="abstract-device-chooser">
+		<xsd:annotation>
+			<xsd:documentation>Chooses a pool of devices that will be used when generating load
+				test traffic.
+			</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="devicePoolType">
+		<xsd:complexContent>
+			<xsd:extension base="abstractDeviceChooserType">
+				<xsd:attribute name="poolSize" type="substitutableInt" use="required">
+					<xsd:annotation>
+						<xsd:documentation>Number of devices in pool.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="specificationToken" type="xsd:string" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>Specification token for limiting devices in pool to a specific
+							hardware configuration. If not specified, devices of all types are used.
+						</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
 			</xsd:extension>
@@ -94,8 +153,6 @@
 			</xsd:documentation>
 		</xsd:annotation>
 	</xsd:element>
-	
-	<!-- Common event producer information -->
 	<xsd:complexType name="abstractEventProducerType">
 		<xsd:attribute name="alertRatio" type="substitutableInt" default="1">
 			<xsd:annotation>

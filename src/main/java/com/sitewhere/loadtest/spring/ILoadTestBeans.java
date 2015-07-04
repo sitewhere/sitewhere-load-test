@@ -14,6 +14,9 @@ package com.sitewhere.loadtest.spring;
  */
 public interface ILoadTestBeans {
 
+	/** Bean that contains the SiteWhere connection information */
+	public static final String BEAN_SITEWHERE_CONNECTION = "siteWhereConnection";
+
 	/** Bean that contains the agent manager implementation */
 	public static final String BEAN_AGENT_MANAGER = "agentManager";
 }

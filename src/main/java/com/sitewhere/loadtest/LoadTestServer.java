@@ -19,6 +19,7 @@ import com.sitewhere.loadtest.server.TomcatConfigurationResolver;
 import com.sitewhere.loadtest.spi.agent.IAgentManager;
 import com.sitewhere.loadtest.spi.server.IConfigurationResolver;
 import com.sitewhere.loadtest.spi.server.ILoadTestServer;
+import com.sitewhere.loadtest.spi.server.ISiteWhereConnection;
 import com.sitewhere.loadtest.spring.ILoadTestBeans;
 import com.sitewhere.loadtest.version.IVersion;
 import com.sitewhere.loadtest.version.VersionHelper;
@@ -46,6 +47,9 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 	/** Configuratino resolver */
 	private IConfigurationResolver configurationResolver = new TomcatConfigurationResolver();
 
+	/** SiteWhere connection information */
+	private ISiteWhereConnection siteWhereConnection;
+
 	/** Agent manager implementation */
 	private IAgentManager agentManager;
 
@@ -65,6 +69,9 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 	public void start() throws SiteWhereException {
 		// Load Spring beans configuration.
 		initializeSpringContext();
+
+		// Initialize SiteWhere connection information.
+		initializeSiteWhereConnection();
 
 		// Initialize agent manager.
 		initializeAgentManager();
@@ -116,7 +123,22 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 	}
 
 	/**
-	 * Initializeagent manager implementation.
+	 * Initialize SiteWhere connection information.
+	 * 
+	 * @throws SiteWhereException
+	 */
+	protected void initializeSiteWhereConnection() throws SiteWhereException {
+		try {
+			this.siteWhereConnection =
+					(ISiteWhereConnection) SERVER_SPRING_CONTEXT.getBean(ILoadTestBeans.BEAN_SITEWHERE_CONNECTION);
+			LOGGER.info("Using SiteWhere connection: " + getSiteWhereConnection().getSiteWhereApiUrl());
+		} catch (NoSuchBeanDefinitionException e) {
+			throw new SiteWhereException("No SiteWhere connection information configured.");
+		}
+	}
+
+	/**
+	 * Initialize agent manager implementation.
 	 * 
 	 * @throws SiteWhereException
 	 */
@@ -177,6 +199,16 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 	@Override
 	public IConfigurationResolver getConfigurationResolver() {
 		return configurationResolver;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.server.ILoadTestServer#getSiteWhereConnection()
+	 */
+	@Override
+	public ISiteWhereConnection getSiteWhereConnection() {
+		return siteWhereConnection;
 	}
 
 	/*

@@ -7,32 +7,22 @@
  */
 package com.sitewhere.loadtest.spi.agent;
 
-import java.util.List;
-
 import com.sitewhere.spi.SiteWhereException;
+import com.sitewhere.spi.device.IDevice;
 import com.sitewhere.spi.server.lifecycle.ILifecycleComponent;
 
 /**
- * Manages the list of agents configured to perform load testing.
+ * Interface for component that chooses which device events will be submitted to.
  * 
  * @author Derek
  */
-public interface IAgentManager extends ILifecycleComponent {
+public interface IDeviceChooser extends ILifecycleComponent {
 
 	/**
-	 * Get list of all agents.
+	 * Choose a device.
 	 * 
 	 * @return
 	 * @throws SiteWhereException
 	 */
-	public List<ILoadTestAgent<?>> getAgents() throws SiteWhereException;
-
-	/**
-	 * Get agent by unique id.
-	 * 
-	 * @param agentId
-	 * @return
-	 * @throws SiteWhereException
-	 */
-	public ILoadTestAgent<?> getAgentById(String agentId) throws SiteWhereException;
+	public IDevice chooseDevice() throws SiteWhereException;
 }

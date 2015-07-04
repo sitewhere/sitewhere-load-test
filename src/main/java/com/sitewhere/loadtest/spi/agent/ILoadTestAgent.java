@@ -7,6 +7,9 @@
  */
 package com.sitewhere.loadtest.spi.agent;
 
+import com.sitewhere.spi.SiteWhereException;
+import com.sitewhere.spi.device.IDevice;
+import com.sitewhere.spi.device.communication.IDeviceEventEncoder;
 import com.sitewhere.spi.server.lifecycle.ILifecycleComponent;
 
 /**
@@ -14,7 +17,7 @@ import com.sitewhere.spi.server.lifecycle.ILifecycleComponent;
  * 
  * @author Derek
  */
-public interface ILoadTestAgent extends ILifecycleComponent {
+public interface ILoadTestAgent<T> extends ILifecycleComponent {
 
 	/**
 	 * Get unique agent id.
@@ -22,4 +25,34 @@ public interface ILoadTestAgent extends ILifecycleComponent {
 	 * @return
 	 */
 	public String getAgentId();
+
+	/**
+	 * Get component that determines which devices will be sent events.
+	 * 
+	 * @return
+	 */
+	public IDeviceChooser getDeviceChooser();
+
+	/**
+	 * Get the event producer implementation.
+	 * 
+	 * @return
+	 */
+	public IEventProducer getEventProducer();
+
+	/**
+	 * Get the event encoder implementation.
+	 * 
+	 * @return
+	 */
+	public IDeviceEventEncoder<T> getEventEncoder();
+
+	/**
+	 * Deliver payload to SiteWhere.
+	 * 
+	 * @param device
+	 * @param payload
+	 * @throws SiteWhereException
+	 */
+	public void deliver(IDevice device, T payload) throws SiteWhereException;
 }

@@ -34,6 +34,13 @@ public interface ILoadTestServer extends ILifecycleComponent {
 	public IConfigurationResolver getConfigurationResolver();
 
 	/**
+	 * Get SiteWhere connection information.
+	 * 
+	 * @return
+	 */
+	public ISiteWhereConnection getSiteWhereConnection();
+
+	/**
 	 * Get the agent manager implementation.
 	 * 
 	 * @return

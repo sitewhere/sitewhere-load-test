@@ -7,29 +7,56 @@
  */
 package com.sitewhere.loadtest.spi.agent.mqtt;
 
-import org.apache.log4j.Logger;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+import org.fusesource.mqtt.client.Future;
+import org.fusesource.mqtt.client.FutureConnection;
+import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.QoS;
+
+import com.sitewhere.loadtest.spi.agent.Agent;
 import com.sitewhere.loadtest.spi.agent.ILoadTestAgent;
-import com.sitewhere.server.lifecycle.LifecycleComponent;
 import com.sitewhere.spi.SiteWhereException;
-import com.sitewhere.spi.server.lifecycle.LifecycleComponentType;
+import com.sitewhere.spi.device.IDevice;
 
 /**
  * Implementation of {@link ILoadTestAgent} that sends traffic via an MQTT broker.
  * 
  * @author Derek
  */
-public class MqttAgent extends LifecycleComponent implements ILoadTestAgent {
+public class MqttAgent extends Agent<byte[]> {
 
 	/** Private logger instance */
 	private static Logger LOGGER = Logger.getLogger(MqttAgent.class);
 
-	/** Unique agent id */
-	private String agentId;
+	/** Default hostname if not set via Spring */
+	public static final String DEFAULT_HOSTNAME = "localhost";
 
-	public MqttAgent() {
-		super(LifecycleComponentType.Other);
-	}
+	/** Default port if not set from Spring */
+	public static final int DEFAULT_PORT = 1883;
+
+	/** Default topic name if not set via Spring */
+	public static final String DEFAULT_TOPIC_NAME = "SiteWhere/input/protobuf";
+
+	/** Default connection timeout in seconds */
+	public static final long DEFAULT_CONNECT_TIMEOUT_SECS = 5;
+
+	/** Host name */
+	private String hostname = DEFAULT_HOSTNAME;
+
+	/** Port */
+	private int port = DEFAULT_PORT;
+
+	/** MQTT topic name */
+	private String topicName = DEFAULT_TOPIC_NAME;
+
+	/** MQTT client */
+	private MQTT mqtt;
+
+	/** Shared MQTT connection */
+	private FutureConnection connection;
 
 	/*
 	 * (non-Javadoc)
@@ -38,6 +65,24 @@ public class MqttAgent extends LifecycleComponent implements ILoadTestAgent {
 	 */
 	@Override
 	public void start() throws SiteWhereException {
+		this.mqtt = new MQTT();
+		try {
+			mqtt.setHost(getHostname(), getPort());
+		} catch (URISyntaxException e) {
+			throw new SiteWhereException("Invalid hostname for MQTT server.", e);
+		}
+		LOGGER.info("Connecting to MQTT broker at '" + getHostname() + ":" + getPort() + "'...");
+		connection = mqtt.futureConnection();
+		try {
+			Future<Void> future = connection.connect();
+			future.await(DEFAULT_CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new SiteWhereException("Unable to connect to MQTT broker.", e);
+		}
+		LOGGER.info("Connected to MQTT broker.");
+
+		// Required for starting threads.
+		super.start();
 	}
 
 	/*
@@ -47,6 +92,33 @@ public class MqttAgent extends LifecycleComponent implements ILoadTestAgent {
 	 */
 	@Override
 	public void stop() throws SiteWhereException {
+		// Required for shutting down threads.
+		super.stop();
+
+		if (connection != null) {
+			Future<Void> shutdown = connection.disconnect();
+			try {
+				shutdown.await(DEFAULT_CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				throw new SiteWhereException("Unable to disconnect from MQTT broker.", e);
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.sitewhere.loadtest.spi.agent.ILoadTestAgent#deliver(com.sitewhere.spi.device
+	 * .IDevice, java.lang.Object)
+	 */
+	@Override
+	public void deliver(IDevice device, byte[] payload) throws SiteWhereException {
+		try {
+			connection.publish(getTopicName(), payload, QoS.AT_LEAST_ONCE, false);
+		} catch (Exception e) {
+			throw new SiteWhereException("Unable to deliver event to MQTT topic.", e);
+		}
 	}
 
 	/*
@@ -59,16 +131,27 @@ public class MqttAgent extends LifecycleComponent implements ILoadTestAgent {
 		return LOGGER;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sitewhere.loadtest.spi.agent.ILoadTestAgent#getAgentId()
-	 */
-	public String getAgentId() {
-		return agentId;
+	public String getHostname() {
+		return hostname;
 	}
 
-	public void setAgentId(String agentId) {
-		this.agentId = agentId;
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getTopicName() {
+		return topicName;
+	}
+
+	public void setTopicName(String topicName) {
+		this.topicName = topicName;
 	}
 }
