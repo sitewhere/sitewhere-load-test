@@ -7,13 +7,20 @@
  */
 package com.sitewhere.loadtest.spi.agent.producer;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 
 import com.sitewhere.loadtest.spi.agent.IEventProducer;
+import com.sitewhere.rest.model.device.communication.DecodedDeviceRequest;
+import com.sitewhere.rest.model.device.event.request.DeviceAlertCreateRequest;
+import com.sitewhere.rest.model.device.event.request.DeviceLocationCreateRequest;
+import com.sitewhere.rest.model.device.event.request.DeviceMeasurementsCreateRequest;
 import com.sitewhere.server.lifecycle.LifecycleComponent;
 import com.sitewhere.spi.SiteWhereException;
 import com.sitewhere.spi.device.IDevice;
 import com.sitewhere.spi.device.communication.IDecodedDeviceRequest;
+import com.sitewhere.spi.device.event.AlertLevel;
 import com.sitewhere.spi.device.event.request.IDeviceAlertCreateRequest;
 import com.sitewhere.spi.device.event.request.IDeviceLocationCreateRequest;
 import com.sitewhere.spi.device.event.request.IDeviceMeasurementsCreateRequest;
@@ -116,7 +123,18 @@ public class EventProducer extends LifecycleComponent implements IEventProducer 
 	 */
 	protected IDecodedDeviceRequest<IDeviceAlertCreateRequest> produceAlert(IDevice recipient)
 			throws SiteWhereException {
-		return null;
+		DeviceAlertCreateRequest alert = new DeviceAlertCreateRequest();
+		alert.setEventDate(new Date());
+		alert.setLevel(AlertLevel.Error);
+		alert.setType("load.test");
+		alert.setMessage("This is a load test alert message");
+		alert.setUpdateState(false);
+
+		DecodedDeviceRequest<IDeviceAlertCreateRequest> request =
+				new DecodedDeviceRequest<IDeviceAlertCreateRequest>();
+		request.setRequest(alert);
+		request.setHardwareId(recipient.getHardwareId());
+		return request;
 	}
 
 	/**
@@ -128,7 +146,18 @@ public class EventProducer extends LifecycleComponent implements IEventProducer 
 	 */
 	protected IDecodedDeviceRequest<IDeviceLocationCreateRequest> produceLocation(IDevice recipient)
 			throws SiteWhereException {
-		return null;
+		DeviceLocationCreateRequest location = new DeviceLocationCreateRequest();
+		location.setEventDate(new Date());
+		location.setLatitude(33.7550);
+		location.setLongitude(-84.3900);
+		location.setElevation(0.0);
+		location.setUpdateState(false);
+
+		DecodedDeviceRequest<IDeviceLocationCreateRequest> request =
+				new DecodedDeviceRequest<IDeviceLocationCreateRequest>();
+		request.setRequest(location);
+		request.setHardwareId(recipient.getHardwareId());
+		return request;
 	}
 
 	/**
@@ -140,7 +169,16 @@ public class EventProducer extends LifecycleComponent implements IEventProducer 
 	 */
 	protected IDecodedDeviceRequest<IDeviceMeasurementsCreateRequest> produceMeasurements(IDevice recipient)
 			throws SiteWhereException {
-		return null;
+		DeviceMeasurementsCreateRequest mx = new DeviceMeasurementsCreateRequest();
+		mx.setEventDate(new Date());
+		mx.addOrReplaceMeasurement("fuel.level", 123.45);
+		mx.addOrReplaceMeasurement("air.speed", 555.67);
+
+		DecodedDeviceRequest<IDeviceMeasurementsCreateRequest> request =
+				new DecodedDeviceRequest<IDeviceMeasurementsCreateRequest>();
+		request.setRequest(mx);
+		request.setHardwareId(recipient.getHardwareId());
+		return request;
 	}
 
 	/*

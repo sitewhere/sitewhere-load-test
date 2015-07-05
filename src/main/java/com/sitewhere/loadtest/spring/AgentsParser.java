@@ -19,10 +19,14 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
+import com.sitewhere.device.communication.protobuf.ProtobufDeviceEventEncoder;
 import com.sitewhere.loadtest.server.AgentManager;
 import com.sitewhere.loadtest.spi.agent.IDeviceChooser;
+import com.sitewhere.loadtest.spi.agent.IEventProducer;
 import com.sitewhere.loadtest.spi.agent.devices.DevicePool;
 import com.sitewhere.loadtest.spi.agent.mqtt.MqttAgent;
+import com.sitewhere.loadtest.spi.agent.producer.EventProducer;
+import com.sitewhere.spi.device.communication.IDeviceEventEncoder;
 
 /**
  * Parses configuration information for the 'agents' section.
@@ -99,6 +103,9 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 		// Handle common agent fields.
 		handleCommonAgentData(element, config);
 
+		// Configure a binary encoder.
+		configureBinaryEncoder(element, config);
+
 		return config.getBeanDefinition();
 	}
 
@@ -123,6 +130,9 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 
 		// Configure a device chooser.
 		configureDeviceChooser(element, config);
+
+		// Configure an event producer.
+		configureEventProducer(element, config);
 	}
 
 	/**
@@ -151,6 +161,12 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 		agent.addPropertyValue("deviceChooser", chooser);
 	}
 
+	/**
+	 * Parse configuration for device pool.
+	 * 
+	 * @param element
+	 * @return
+	 */
 	protected AbstractBeanDefinition parseDevicePool(Element element) {
 		BeanDefinitionBuilder config = BeanDefinitionBuilder.rootBeanDefinition(DevicePool.class);
 
@@ -160,6 +176,87 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 		}
 		config.addPropertyValue("poolSize", poolSize.getValue());
 
+		return config.getBeanDefinition();
+	}
+
+	/**
+	 * Configure an {@link IEventProducer} for the agent.
+	 * 
+	 * @param element
+	 * @param config
+	 */
+	protected void configureEventProducer(Element element, BeanDefinitionBuilder agent) {
+		List<Element> children = DomUtils.getChildElements(element);
+		AbstractBeanDefinition producer = null;
+		for (Element child : children) {
+			EventProducers type = EventProducers.getByLocalName(child.getLocalName());
+			if (type != null) {
+				switch (type) {
+				case LinearEventProducer: {
+					producer = parseLinearEventProducer(child);
+					break;
+				}
+				}
+			}
+		}
+		if (producer == null) {
+			throw new RuntimeException("No event producer configured for agent.");
+		}
+		agent.addPropertyValue("eventProducer", producer);
+	}
+
+	/**
+	 * Parse configuration for a linear event producer.
+	 * 
+	 * @param element
+	 * @return
+	 */
+	protected AbstractBeanDefinition parseLinearEventProducer(Element element) {
+		BeanDefinitionBuilder config = BeanDefinitionBuilder.rootBeanDefinition(EventProducer.class);
+
+		Attr throttleDelayMs = element.getAttributeNode("throttleDelayMs");
+		if (throttleDelayMs != null) {
+			config.addPropertyValue("throttleDelayInMs", throttleDelayMs.getValue());
+		}
+
+		return config.getBeanDefinition();
+	}
+
+	/**
+	 * Configure an {@link IDeviceEventEncoder} that produces binary payloads.
+	 * 
+	 * @param element
+	 * @param config
+	 */
+	protected void configureBinaryEncoder(Element element, BeanDefinitionBuilder agent) {
+		List<Element> children = DomUtils.getChildElements(element);
+		AbstractBeanDefinition encoder = null;
+		for (Element child : children) {
+			BinaryEncoders type = BinaryEncoders.getByLocalName(child.getLocalName());
+			if (type != null) {
+				switch (type) {
+				case ProtobufEncoder: {
+					encoder = parseProtobufEventEncoder(child);
+					break;
+				}
+				}
+			}
+		}
+		if (encoder == null) {
+			throw new RuntimeException("No event encoder configured for agent.");
+		}
+		agent.addPropertyValue("eventEncoder", encoder);
+	}
+
+	/**
+	 * Parse configuration for a protobuf event encoder.
+	 * 
+	 * @param element
+	 * @return
+	 */
+	protected AbstractBeanDefinition parseProtobufEventEncoder(Element element) {
+		BeanDefinitionBuilder config =
+				BeanDefinitionBuilder.rootBeanDefinition(ProtobufDeviceEventEncoder.class);
 		return config.getBeanDefinition();
 	}
 
@@ -217,6 +314,76 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 
 		public static DeviceChoosers getByLocalName(String localName) {
 			for (DeviceChoosers value : DeviceChoosers.values()) {
+				if (value.getLocalName().equals(localName)) {
+					return value;
+				}
+			}
+			return null;
+		}
+
+		public String getLocalName() {
+			return localName;
+		}
+
+		public void setLocalName(String localName) {
+			this.localName = localName;
+		}
+	}
+
+	/**
+	 * Allowed values for event producers.
+	 * 
+	 * @author Derek
+	 */
+	public static enum EventProducers {
+
+		/** Linear event producer */
+		LinearEventProducer("linear-event-producer");
+
+		/** Event code */
+		private String localName;
+
+		private EventProducers(String localName) {
+			this.localName = localName;
+		}
+
+		public static EventProducers getByLocalName(String localName) {
+			for (EventProducers value : EventProducers.values()) {
+				if (value.getLocalName().equals(localName)) {
+					return value;
+				}
+			}
+			return null;
+		}
+
+		public String getLocalName() {
+			return localName;
+		}
+
+		public void setLocalName(String localName) {
+			this.localName = localName;
+		}
+	}
+
+	/**
+	 * Allowed values for binary event encoders.
+	 * 
+	 * @author Derek
+	 */
+	public static enum BinaryEncoders {
+
+		/** SiteWhere Google Protocol Buffer encoder */
+		ProtobufEncoder("protobuf-encoder");
+
+		/** Event code */
+		private String localName;
+
+		private BinaryEncoders(String localName) {
+			this.localName = localName;
+		}
+
+		public static BinaryEncoders getByLocalName(String localName) {
+			for (BinaryEncoders value : BinaryEncoders.values()) {
 				if (value.getLocalName().equals(localName)) {
 					return value;
 				}

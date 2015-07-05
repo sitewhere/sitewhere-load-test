@@ -32,7 +32,7 @@
 				<lt:device-pool poolSize="25"/>
 
 				<!-- Produces events at a linear rate with a throttle delay -->
-				<lt:linear-event-producer throttleDelayMs="1000"/>
+				<lt:linear-event-producer throttleDelayMs="100"/>
 
 				<!-- Produces events at an increasing rate over the duration of an hour -->
 				<!--  

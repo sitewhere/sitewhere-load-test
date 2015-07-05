@@ -71,6 +71,9 @@ public abstract class Agent<T> extends LifecycleComponent implements ILoadTestAg
 		// Start device chooser as nested component.
 		startNestedComponent(getDeviceChooser(), true);
 
+		// Start event producer as nested component.
+		startNestedComponent(getEventProducer(), true);
+
 		executor = Executors.newFixedThreadPool(getNumThreads());
 		for (int i = 0; i < getNumThreads(); i++) {
 			executor.submit(new AgentDeliveryThread());
@@ -99,7 +102,7 @@ public abstract class Agent<T> extends LifecycleComponent implements ILoadTestAg
 			while (true) {
 				try {
 					sendEvent();
-				} catch (SiteWhereException e) {
+				} catch (Throwable e) {
 					getLogger().error("Unable to send event.", e);
 				}
 			}

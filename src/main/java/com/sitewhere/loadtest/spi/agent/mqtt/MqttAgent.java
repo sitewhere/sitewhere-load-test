@@ -16,6 +16,7 @@ import org.fusesource.mqtt.client.FutureConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 
+import com.sitewhere.core.DataUtils;
 import com.sitewhere.loadtest.spi.agent.Agent;
 import com.sitewhere.loadtest.spi.agent.ILoadTestAgent;
 import com.sitewhere.spi.SiteWhereException;
@@ -115,6 +116,9 @@ public class MqttAgent extends Agent<byte[]> {
 	@Override
 	public void deliver(IDevice device, byte[] payload) throws SiteWhereException {
 		try {
+			getLogger().debug(
+					"Sending encoded message to topic '" + getTopicName() + "': "
+							+ DataUtils.bytesToHex(payload));
 			connection.publish(getTopicName(), payload, QoS.AT_LEAST_ONCE, false);
 		} catch (Exception e) {
 			throw new SiteWhereException("Unable to deliver event to MQTT topic.", e);
