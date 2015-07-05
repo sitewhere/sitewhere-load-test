@@ -131,7 +131,7 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 		try {
 			this.siteWhereConnection =
 					(ISiteWhereConnection) SERVER_SPRING_CONTEXT.getBean(ILoadTestBeans.BEAN_SITEWHERE_CONNECTION);
-			LOGGER.info("Using SiteWhere connection: " + getSiteWhereConnection().getSiteWhereApiUrl());
+			LOGGER.info("Using SiteWhere connection: " + getSiteWhereConnection().getRestApiUrl());
 		} catch (NoSuchBeanDefinitionException e) {
 			throw new SiteWhereException("No SiteWhere connection information configured.");
 		}

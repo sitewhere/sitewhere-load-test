@@ -30,8 +30,31 @@
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
-			<xsd:element name="sitewhere-api-url"/>
+			<xsd:element name="sitewhere-server" type="siteWhereServerType"/>
 		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="siteWhereServerType">
+		<xsd:annotation>
+			<xsd:documentation>
+				Contains information about a SiteWhere server instance.
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="restApiUrl" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>URL for accessing SiteWhere REST APIs.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="restApiUsername" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Username for accessing SiteWhere REST APIs.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="restApiPassword" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>Password for accessing SiteWhere REST APIs.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 	</xsd:complexType>
 
 	<xsd:complexType name="agentsType">

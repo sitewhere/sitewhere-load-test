@@ -15,9 +15,23 @@ package com.sitewhere.loadtest.spi.server;
 public interface ISiteWhereConnection {
 
 	/**
-	 * Get API URL for interacting with SiteWhere instance.
+	 * Get URL for accessing REST services.
 	 * 
 	 * @return
 	 */
-	public String getSiteWhereApiUrl();
+	public String getRestApiUrl();
+
+	/**
+	 * Get username for accessing REST services.
+	 * 
+	 * @return
+	 */
+	public String getRestUsername();
+
+	/**
+	 * Get password for accessing REST services.
+	 * 
+	 * @return
+	 */
+	public String getRestPassword();
 }

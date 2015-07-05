@@ -16,18 +16,51 @@ import com.sitewhere.loadtest.spi.server.ISiteWhereConnection;
  */
 public class SiteWhereConnection implements ISiteWhereConnection {
 
-	private String siteWhereApiUrl;
+	/** REST API URL */
+	private String restApiUrl;
+
+	/** REST API username */
+	private String restUsername;
+
+	/** REST API password */
+	private String restPassword;
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.sitewhere.loadtest.spi.server.ISiteWhereConnection#getSiteWhereApiUrl()
+	 * @see com.sitewhere.loadtest.spi.server.ISiteWhereConnection#getRestApiUrl()
 	 */
-	public String getSiteWhereApiUrl() {
-		return siteWhereApiUrl;
+	public String getRestApiUrl() {
+		return restApiUrl;
 	}
 
-	public void setSiteWhereApiUrl(String siteWhereApiUrl) {
-		this.siteWhereApiUrl = siteWhereApiUrl;
+	public void setRestApiUrl(String restApiUrl) {
+		this.restApiUrl = restApiUrl;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.server.ISiteWhereConnection#getRestUsername()
+	 */
+	public String getRestUsername() {
+		return restUsername;
+	}
+
+	public void setRestUsername(String restUsername) {
+		this.restUsername = restUsername;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.sitewhere.loadtest.spi.server.ISiteWhereConnection#getRestPassword()
+	 */
+	public String getRestPassword() {
+		return restPassword;
+	}
+
+	public void setRestPassword(String restPassword) {
+		this.restPassword = restPassword;
 	}
 }

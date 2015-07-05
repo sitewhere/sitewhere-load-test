@@ -68,6 +68,9 @@ public abstract class Agent<T> extends LifecycleComponent implements ILoadTestAg
 	 */
 	@Override
 	public void start() throws SiteWhereException {
+		// Start device chooser as nested component.
+		startNestedComponent(getDeviceChooser(), true);
+
 		executor = Executors.newFixedThreadPool(getNumThreads());
 		for (int i = 0; i < getNumThreads(); i++) {
 			executor.submit(new AgentDeliveryThread());
