@@ -14,6 +14,10 @@ capture performance data.
 If you want to customize SiteWhere Load Testing Node or otherwise have a need to build it 
 from source code, use the following steps.
 
+**Note that this project has dependencies on SiteWhere 1.0.5 which is an unreleased
+branch. Before building the load test node project, clone the 1.0.5 branch of 
+SiteWhere Server and build it to generate artifacts into your local Maven repository.**
+
 #### Required Tools #####
 * [Apache Maven] (http://maven.apache.org/)
 * A [GIT] (http://git-scm.com/) client
