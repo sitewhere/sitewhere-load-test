@@ -41,8 +41,8 @@ tarred gzipped archive. To install the archive, move it to the machine where the
 should run, unzip the archive then execute either *bin/startup.bat* or *bin/startup.sh* to
 start the node.
 
-#### Configuring the Load Testing Node #####
-The configuration file for the load testing node is located at *conf/loadtest/sitewhere.loadtest.xml*. It is
+### Configuring the Load Testing Node ####
+The configuration file for the load testing node is located at *conf/loadtest/sitewhere-loadtest.xml*. It is
 an XML file that conforms to the Spring beans XML schema and contains custom schema elements used to
 configure how load testing is performed. An example of a configuration file is shown below:
 
@@ -101,4 +101,22 @@ configure how load testing is performed. An example of a configuration file is s
 </beans>
 ```
 
-Test
+This configuration will start an MQTT agent that uses 20 threads to submit event traffic to
+a SiteWhere server over the MQTT protocol. The events will be sent to a pool of 25 devices which
+are loaded from the SiteWhere server via the REST services. Events will be produced in a linear
+fashion with a delay of 100 milliseconds to throttle the transmission rate. Each event is encoded using the default 
+[SiteWhere Google Protocol Buffers](https://github.com/sitewhere/sitewhere/blob/sitewhere-1.0.5/sitewhere-protobuf/proto/sitewhere.proto) 
+format. 
+
+**Note that your SiteWhere server should be configured to accept events in this same format.
+The default SiteWhere server configuration will work with this load testing configuration.**
+
+#### Agents #####
+A SiteWhere load test node configuration may contain one or more **agents**. An agent is used
+to send data to a SiteWhere server over a given protocol. The initial version of SiteWhere load
+test node only supports sending events over MQTT. Future versions will add agents for Stomp, COAP,
+REST and other formats.
+
+
+
+
