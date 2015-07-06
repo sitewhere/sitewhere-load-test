@@ -20,12 +20,12 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
 import com.sitewhere.device.communication.protobuf.ProtobufDeviceEventEncoder;
+import com.sitewhere.loadtest.agent.devices.DevicePool;
+import com.sitewhere.loadtest.agent.mqtt.MqttAgent;
+import com.sitewhere.loadtest.agent.producer.EventProducer;
 import com.sitewhere.loadtest.server.AgentManager;
 import com.sitewhere.loadtest.spi.agent.IDeviceChooser;
 import com.sitewhere.loadtest.spi.agent.IEventProducer;
-import com.sitewhere.loadtest.spi.agent.devices.DevicePool;
-import com.sitewhere.loadtest.spi.agent.mqtt.MqttAgent;
-import com.sitewhere.loadtest.spi.agent.producer.EventProducer;
 import com.sitewhere.spi.device.communication.IDeviceEventEncoder;
 
 /**

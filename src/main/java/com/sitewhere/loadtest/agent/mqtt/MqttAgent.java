@@ -5,7 +5,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package com.sitewhere.loadtest.spi.agent.mqtt;
+package com.sitewhere.loadtest.agent.mqtt;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +17,7 @@ import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 
 import com.sitewhere.core.DataUtils;
-import com.sitewhere.loadtest.spi.agent.Agent;
+import com.sitewhere.loadtest.agent.Agent;
 import com.sitewhere.loadtest.spi.agent.ILoadTestAgent;
 import com.sitewhere.spi.SiteWhereException;
 import com.sitewhere.spi.device.IDevice;

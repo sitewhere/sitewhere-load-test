@@ -5,11 +5,14 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package com.sitewhere.loadtest.spi.agent;
+package com.sitewhere.loadtest.agent;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.sitewhere.loadtest.spi.agent.IDeviceChooser;
+import com.sitewhere.loadtest.spi.agent.IEventProducer;
+import com.sitewhere.loadtest.spi.agent.ILoadTestAgent;
 import com.sitewhere.server.lifecycle.LifecycleComponent;
 import com.sitewhere.spi.SiteWhereException;
 import com.sitewhere.spi.device.IDevice;
