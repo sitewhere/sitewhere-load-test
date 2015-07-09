@@ -103,6 +103,18 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 		// Handle common agent fields.
 		handleCommonAgentData(element, config);
 
+		// Set hostname if provided.
+		Attr hostname = element.getAttributeNode("hostname");
+		if (hostname != null) {
+			config.addPropertyValue("hostname", hostname.getValue());
+		}
+
+		// Set port if provided.
+		Attr port = element.getAttributeNode("port");
+		if (port != null) {
+			config.addPropertyValue("port", port.getValue());
+		}
+
 		// Configure a binary encoder.
 		configureBinaryEncoder(element, config);
 
