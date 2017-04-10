@@ -1,0 +1,131 @@
+buildscript {
+	repositories {
+		maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "http://repo.spring.io/libs-snapshot" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+		classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.7.3'
+		classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+		classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+		classpath 'com.github.skhatri:gradle-s3-plugin:1.0.2'
+		classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
+	}
+}
+
+apply plugin: 's3'
+s3 {
+    bucket = 'sitewhere'
+    awsProfile = 'gradle'
+}
+
+apply plugin: 'distribution'
+
+allprojects  {
+	apply plugin: 'eclipse'
+	
+    group = 'com.sitewhere'
+    version = '1.10.0'
+	
+    repositories {
+        maven { url "http://repo.maven.apache.org/maven2" }
+        maven { url 'http://maven.restlet.org' }
+        maven { url "https://jitpack.io" }
+        maven { url "http://dist.wso2.org/maven2/" }
+        maven { url "http://oss.jfrog.org/artifactory/oss-release-local/" }
+        maven { url "https://oss.sonatype.org/content/repositories/ksoap2-android-releases/" }
+    }
+}
+
+subprojects {
+ 	apply plugin: 'io.spring.dependency-management'
+ 	
+    apply plugin: 'java'
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    
+	dependencyManagement {
+		imports {
+			mavenBom 'io.spring.platform:platform-bom:2.0.5.RELEASE'
+		}
+	}
+  
+    dependencies {
+        testCompile group: 'junit', name: 'junit'
+    }
+    test {
+        exclude '**/*'
+    }
+}
+
+// Arranges files to be packaged as a distribution.
+task copyServerArtifacts(dependsOn: subprojects.build) {
+    doLast {
+ 
+        copy {
+            from(project.projectDir.path + '/server')
+            into "$buildDir/sitewhere" 
+		}
+
+        copy {
+            from(zipTree(project(':sitewhere-load-test-web').war.archivePath))
+            into "$buildDir/sitewhere/lib/sitewhere"
+            exclude "**/*.war", "**/jasper-*.jar"
+        }
+    }
+}
+
+task rezip(type: Zip, dependsOn: copyServerArtifacts) {
+	from "$buildDir/sitewhere/lib/sitewhere"
+	entryCompression org.gradle.api.tasks.bundling.ZipEntryCompression.STORED
+	archiveName "loadtest.war"
+	destinationDir file("$buildDir/sitewhere/lib")
+	
+    doLast {
+		def sw = new File("$buildDir/sitewhere/lib/sitewhere")
+		println "Deleting ${sw.absolutePath}"
+		sw.deleteDir()
+	}
+}
+
+// Build server zip distribution.
+task serverZip(type: Zip, dependsOn: rezip) {
+    baseName = 'sitewhere-load-test'
+    from "$buildDir/sitewhere"
+    into "${baseName}-${version}"
+}
+
+// Upload server zip file to Amazon S3
+task uploadServerZip(type: com.github.skhatri.s3aws.plugin.S3UploadTask, dependsOn: serverZip) {
+    key = serverZip.archiveName
+    file = serverZip.archivePath
+    
+    doLast {
+    	println 'Uploaded server zip to Amazon S3.'
+    }
+}
+
+// Build server tar distribution.
+task serverTar(type: Tar, dependsOn: rezip) {
+    baseName = 'sitewhere-load-test'
+    compression = 'GZIP'
+ 	from("$buildDir/sitewhere") {
+		exclude ('**/*.sh')
+	}
+	from("$buildDir/sitewhere") {
+		include ('**/*.sh')
+		fileMode 0755
+	}
+	into "${baseName}-${version}"
+}
+
+// Upload server tar file to Amazon S3
+task uploadServerTar(type: com.github.skhatri.s3aws.plugin.S3UploadTask, dependsOn: serverTar) {
+    key = serverTar.archiveName
+    file = serverTar.archivePath
+    
+    doLast {
+    	println 'Uploaded server tar to Amazon S3.'
+    }
+}

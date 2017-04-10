@@ -1,0 +1,16 @@
+description = 'Load Test Web Application'
+
+apply plugin: 'war'
+
+apply plugin: 'spring-boot'
+springBoot {
+    mainClass = 'com.sitewhere.loadtest.web.LoadTestWebApplication'
+}
+
+configurations {
+    compile.exclude module: 'spring-boot-starter-logging'
+}
+
+dependencies {
+    compile project(':sitewhere-load-test-core')
+}

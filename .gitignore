@@ -1,3 +1,9 @@
-/bin/
-/target/
-/deploy/
+/bin
+/deploy
+/target
+
+### Gradle ###
+build
+.gradle*
+/.settings/
+/.project

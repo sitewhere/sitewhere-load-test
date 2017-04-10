@@ -1,0 +1,18 @@
+rootProject.name = 'sitewhere-load-test'
+include ':sitewhere-client'
+include ':sitewhere-core'
+include ':sitewhere-core-api'
+include ':sitewhere-protobuf'
+include ':sitewhere-server-api'
+
+include ':sitewhere-load-test-core'
+include ':sitewhere-load-test-web'
+
+project(':sitewhere-client').projectDir = "$rootDir/../sitewhere/sitewhere-client" as File
+project(':sitewhere-core').projectDir = "$rootDir/../sitewhere/sitewhere-core" as File
+project(':sitewhere-core-api').projectDir = "$rootDir/../sitewhere/sitewhere-core-api" as File
+project(':sitewhere-protobuf').projectDir = "$rootDir/../sitewhere/sitewhere-protobuf" as File
+project(':sitewhere-server-api').projectDir = "$rootDir/../sitewhere/sitewhere-server-api" as File
+
+project(':sitewhere-load-test-core').projectDir = "$rootDir/sitewhere-load-test-core" as File
+project(':sitewhere-load-test-web').projectDir = "$rootDir/sitewhere-load-test-web" as File
