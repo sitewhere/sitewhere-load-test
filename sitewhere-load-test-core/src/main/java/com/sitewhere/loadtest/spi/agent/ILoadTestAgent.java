@@ -55,4 +55,11 @@ public interface ILoadTestAgent<T> extends ILifecycleComponent {
      * @throws SiteWhereException
      */
     public void deliver(IDevice device, T payload) throws SiteWhereException;
+
+    /**
+     * Start load tests associated with agent.
+     * 
+     * @throws SiteWhereException
+     */
+    public void startLoadTests() throws SiteWhereException;
 }

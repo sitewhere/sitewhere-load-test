@@ -93,6 +93,17 @@ public class MqttAgent extends Agent<byte[]> {
     /*
      * (non-Javadoc)
      * 
+     * @see com.sitewhere.loadtest.agent.Agent#startLoadTests()
+     */
+    @Override
+    public void startLoadTests() throws SiteWhereException {
+	LOGGER.info("Starting tests for MQTT agent.");
+	super.startLoadTests();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.sitewhere.loadtest.agent.Agent#stop(com.sitewhere.spi.server.
      * lifecycle.ILifecycleProgressMonitor)
      */

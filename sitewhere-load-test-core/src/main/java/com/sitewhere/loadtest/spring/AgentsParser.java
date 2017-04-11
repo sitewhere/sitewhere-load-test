@@ -112,6 +112,12 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 	    config.addPropertyValue("port", port.getValue());
 	}
 
+	// Set topic if provided.
+	Attr topic = element.getAttributeNode("topic");
+	if (topic != null) {
+	    config.addPropertyValue("topicName", topic.getValue());
+	}
+
 	// Configure a binary encoder.
 	configureBinaryEncoder(element, config);
 
@@ -184,6 +190,11 @@ public class AgentsParser extends AbstractBeanDefinitionParser {
 	    throw new RuntimeException("Device pool configuration missing 'serverId' attribute.");
 	}
 	config.addPropertyValue("serverId", serverId.getValue());
+
+	Attr tenantAuthToken = element.getAttributeNode("tenantAuthToken");
+	if (tenantAuthToken != null) {
+	    config.addPropertyValue("tenantAuthToken", tenantAuthToken.getValue());
+	}
 
 	Attr poolSize = element.getAttributeNode("poolSize");
 	if (poolSize == null) {

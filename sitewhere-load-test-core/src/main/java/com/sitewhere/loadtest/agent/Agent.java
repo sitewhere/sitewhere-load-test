@@ -9,6 +9,8 @@ package com.sitewhere.loadtest.agent;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sitewhere.loadtest.spi.agent.IDeviceChooser;
 import com.sitewhere.loadtest.spi.agent.IEventProducer;
@@ -80,10 +82,28 @@ public abstract class Agent<T> extends LifecycleComponent implements ILoadTestAg
 
 	// Start event producer as nested component.
 	startNestedComponent(getEventProducer(), monitor, true);
+    }
 
-	executor = Executors.newFixedThreadPool(getNumThreads());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.sitewhere.loadtest.spi.agent.ILoadTestAgent#startLoadTests()
+     */
+    @Override
+    public void startLoadTests() throws SiteWhereException {
+	executor = Executors.newFixedThreadPool(getNumThreads(), new AgentThreadFactory());
 	for (int i = 0; i < getNumThreads(); i++) {
 	    executor.submit(new AgentDeliveryThread());
+	}
+    }
+
+    /** Used for naming threads */
+    public static class AgentThreadFactory implements ThreadFactory {
+
+	private static AtomicInteger COUNTER = new AtomicInteger(0);
+
+	public Thread newThread(Runnable r) {
+	    return new Thread(r, "Agent Thread " + COUNTER.incrementAndGet());
 	}
     }
 

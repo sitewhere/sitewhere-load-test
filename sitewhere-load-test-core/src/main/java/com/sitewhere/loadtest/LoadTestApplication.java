@@ -1,7 +1,5 @@
 package com.sitewhere.loadtest;
 
-import java.util.concurrent.ThreadFactory;
-
 import javax.annotation.PostConstruct;
 
 import org.apache.logging.log4j.LogManager;
@@ -85,13 +83,5 @@ public class LoadTestApplication {
 
     public static void main(String[] args) {
 	SpringApplication.run(LoadTestApplication.class, args);
-    }
-
-    /** Used for naming threads */
-    public static class SiteWhereThreadFactory implements ThreadFactory {
-
-	public Thread newThread(Runnable r) {
-	    return new Thread(r, "Load Test Server");
-	}
     }
 }

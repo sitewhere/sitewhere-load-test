@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import com.sitewhere.core.Boilerplate;
 import com.sitewhere.loadtest.server.ConfigurationResolver;
 import com.sitewhere.loadtest.spi.agent.IAgentManager;
+import com.sitewhere.loadtest.spi.agent.ILoadTestAgent;
 import com.sitewhere.loadtest.spi.server.IConfigurationResolver;
 import com.sitewhere.loadtest.spi.server.ILoadTestServer;
 import com.sitewhere.loadtest.spi.server.IServerManager;
@@ -97,6 +98,11 @@ public class LoadTestServer extends LifecycleComponent implements ILoadTestServe
 
 	// Show banner indicating that server has started.
 	showServerBanner();
+
+	LOGGER.info("Starting load tests for all agents...");
+	for (ILoadTestAgent<?> agent : getAgentManager().getAgents()) {
+	    agent.startLoadTests();
+	}
     }
 
     /*

@@ -43,6 +43,9 @@ public class DevicePool extends LifecycleComponent implements IDeviceChooser {
     /** Id of server that provides device information */
     private String serverId;
 
+    /** Tenant authentication token */
+    private String tenantAuthToken = SiteWhereClient.DEFAULT_TENANT_AUTH_TOKEN;
+
     /** Size of device pool */
     private int poolSize = 0;
 
@@ -66,7 +69,7 @@ public class DevicePool extends LifecycleComponent implements IDeviceChooser {
 		.get(getServerId());
 	if (connection != null) {
 	    ISiteWhereClient client = new SiteWhereClient(connection.getRestApiUrl(), connection.getRestUsername(),
-		    connection.getRestPassword(), REST_CONNECTION_TIMEOUT);
+		    connection.getRestPassword(), getTenantAuthToken(), REST_CONNECTION_TIMEOUT);
 	    DateRangeSearchCriteria criteria = new DateRangeSearchCriteria(1, getPoolSize(), null, null);
 	    try {
 		DeviceSearchResults matches = client.listDevices(false, false, true, true, criteria);
@@ -107,6 +110,14 @@ public class DevicePool extends LifecycleComponent implements IDeviceChooser {
 
     public void setServerId(String serverId) {
 	this.serverId = serverId;
+    }
+
+    public String getTenantAuthToken() {
+	return tenantAuthToken;
+    }
+
+    public void setTenantAuthToken(String tenantAuthToken) {
+	this.tenantAuthToken = tenantAuthToken;
     }
 
     public int getPoolSize() {

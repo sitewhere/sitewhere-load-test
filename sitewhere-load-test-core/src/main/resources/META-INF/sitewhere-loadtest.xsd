@@ -176,6 +176,14 @@
 						</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
+				<xsd:attribute name="tenantAuthToken" type="xsd:string"
+					use="optional">
+					<xsd:annotation>
+						<xsd:documentation>Optional tenant authentication token for
+							choosing non-default tenant.
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
 				<xsd:attribute name="poolSize" type="substitutableInt"
 					use="required">
 					<xsd:annotation>

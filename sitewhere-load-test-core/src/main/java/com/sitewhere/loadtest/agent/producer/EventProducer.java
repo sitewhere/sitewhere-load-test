@@ -122,7 +122,7 @@ public class EventProducer extends LifecycleComponent implements IEventProducer 
 	    try {
 		Thread.sleep(getThrottleDelayInMs());
 	    } catch (InterruptedException e) {
-		LOGGER.warn("Event producer interrupted during throttle delay.");
+		LOGGER.info("Event producer shutting down.");
 	    }
 	}
     }
